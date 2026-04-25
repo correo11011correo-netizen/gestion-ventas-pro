@@ -178,6 +178,137 @@
             return;
         }
 
+        let carrito = [];
+        let metodoPago = 'Efectivo';
+
+        window.selectPayMethod = (method) => {
+            metodoPago = method;
+            document.getElementById('btn_pay_efectivo').classList.toggle('active', method === 'Efectivo');
+            document.getElementById('btn_pay_transf').classList.toggle('active', method === 'Transferencia');
+        };
+
+        const renderCarrito = () => {
+            const list = document.getElementById('v_carrito_lista');
+            const totalEl = document.getElementById('v_carrito_total');
+            const btnCheckout = document.getElementById('btn_checkout');
+
+            if (!list) return;
+
+            if (carrito.length === 0) {
+                list.innerHTML = '<div class="empty-cart">El carrito está vacío</div>';
+                totalEl.innerText = '$0.00';
+                btnCheckout.disabled = true;
+                return;
+            }
+
+            let total = 0;
+            list.innerHTML = carrito.map((item, index) => {
+                total += item.precio * item.cantidad;
+                return `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.nombre}</div>
+                            <div class="cart-item-price">$${item.precio} x ${item.cantidad}</div>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button class="btn-qty" onclick="modificarCarrito(${index}, -1)">-</button>
+                            <span style="font-weight:bold; font-size:0.9rem;">${item.cantidad}</span>
+                            <button class="btn-qty" onclick="modificarCarrito(${index}, 1)">+</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            totalEl.innerText = '$' + total.toFixed(2);
+            btnCheckout.disabled = false;
+        };
+
+        window.modificarCarrito = (index, delta) => {
+            const db = getDB();
+            const item = carrito[index];
+            const prod = db.productos.find(p => p.id === item.id);
+            
+            if (delta > 0 && item.cantidad >= prod.stock) {
+                return alert("¡No hay más stock disponible!");
+            }
+            
+            item.cantidad += delta;
+            if (item.cantidad <= 0) {
+                carrito.splice(index, 1);
+            }
+            renderCarrito();
+            renderEmpleado();
+        };
+
+        window.agregarAlCarrito = (pId) => {
+            const db = getDB();
+            const prod = db.productos.find(x => x.id === pId);
+            
+            const itemExistente = carrito.find(x => x.id === pId);
+            const cantEnCarrito = itemExistente ? itemExistente.cantidad : 0;
+
+            if (prod.stock <= cantEnCarrito) {
+                return alert("¡No hay stock suficiente!");
+            }
+
+            if (itemExistente) {
+                itemExistente.cantidad += 1;
+            } else {
+                carrito.push({
+                    id: prod.id,
+                    nombre: prod.nombre,
+                    precio: parseFloat(prod.precio),
+                    cantidad: 1
+                });
+            }
+            renderCarrito();
+            renderEmpleado();
+        };
+
+        window.procesarVentaCarrito = () => {
+            if (carrito.length === 0) return;
+            
+            let db = getDB();
+            let totalVenta = 0;
+            
+            for (const item of carrito) {
+                const prod = db.productos.find(p => p.id === item.id);
+                if (!prod || prod.stock < item.cantidad) {
+                    return alert(`No hay stock suficiente para ${item.nombre}.`);
+                }
+            }
+
+            const idVentaBase = 'V' + Date.now();
+            let count = 0;
+
+            for (const item of carrito) {
+                const pIdx = db.productos.findIndex(p => p.id === item.id);
+                db.productos[pIdx].stock -= item.cantidad;
+                
+                const totalItem = (item.precio * item.cantidad).toFixed(2);
+                totalVenta += parseFloat(totalItem);
+
+                db.ventas.unshift({ 
+                    id: idVentaBase + '-' + count++, 
+                    fecha: new Date().toLocaleDateString('es-ES'), 
+                    hora: new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'}), 
+                    vendedor: db.turno.nombre, 
+                    productoNombre: item.nombre, 
+                    cantidad: item.cantidad, 
+                    total: totalItem,
+                    metodoPago: metodoPago
+                });
+            }
+
+            saveDB('vp_productos', db.productos);
+            saveDB('vp_ventas', db.ventas);
+            
+            alert(`¡Venta procesada con éxito!\nTotal: $${totalVenta.toFixed(2)}\nMétodo: ${metodoPago}`);
+            carrito = [];
+            renderCarrito();
+            renderEmpleado();
+        };
+
         const renderEmpleado = () => {
             const db = getDB();
             const scrIni = document.getElementById('screen-iniciar');
@@ -190,15 +321,20 @@
 
                 const gridProd = document.getElementById('v_productos_grid');
                 if (gridProd) {
-                    const newGridHTML = db.productos.map(p => `
-                        <button class="prod-btn" ${p.stock <= 0 ? 'disabled' : ''} onclick="venderRapido('${p.id}')">
+                    const newGridHTML = db.productos.map(p => {
+                        const enCarrito = carrito.find(c => c.id === p.id);
+                        const cantEnCarrito = enCarrito ? enCarrito.cantidad : 0;
+                        const stockRestante = p.stock - cantEnCarrito;
+                        const disabled = stockRestante <= 0;
+                        return `
+                        <button class="prod-btn" ${disabled ? 'disabled' : ''} onclick="agregarAlCarrito('${p.id}')">
                             <span class="p-name">${p.nombre}</span>
                             <span class="p-price">$${p.precio}</span>
-                            <span class="p-stock">Stock: ${p.stock}</span>
+                            <span class="p-stock">Disp: ${stockRestante}</span>
                         </button>
-                    `).join('');
+                        `;
+                    }).join('');
                     
-                    // Solo actualizar si hay cambios visuales para no parpadear
                     if (gridProd.innerHTML !== newGridHTML) {
                         gridProd.innerHTML = newGridHTML;
                     }
@@ -235,26 +371,12 @@
             renderEmpleado();
         });
 
-        window.venderRapido = (pId) => {
-            let db = getDB();
-            const pIdx = db.productos.findIndex(x => x.id === pId);
-            const prod = db.productos[pIdx];
-
-            if (prod.stock < 1) return alert("¡No hay stock suficiente!");
-
-            db.productos[pIdx].stock -= 1;
-            saveDB('vp_productos', db.productos);
-
-            const total = parseFloat(prod.precio).toFixed(2);
-            db.ventas.unshift({ id: 'V'+Date.now(), fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'}), vendedor: db.turno.nombre, productoNombre: prod.nombre, cantidad: 1, total: total });
-            saveDB('vp_ventas', db.ventas);
-        };
-
         window.cumplirObj = (id) => { const db = getDB(); const o = db.objetivos.find(x => x.id === id); if(o){ o.estado = 'cumplido'; saveDB('vp_objetivos', db.objetivos); } };
-        window.cerrarTurno = () => { if(confirm("Cerrar?")){ localStorage.removeItem('vp_turno'); window.dispatchEvent(new Event('storage')); renderEmpleado(); } };
+        window.cerrarTurno = () => { if(confirm("Cerrar?")){ localStorage.removeItem('vp_turno'); window.dispatchEvent(new Event('storage')); carrito = []; renderCarrito(); renderEmpleado(); } };
 
         window.addEventListener('storage', renderEmpleado);
         setInterval(renderEmpleado, 1500);
         renderEmpleado();
+        renderCarrito();
     }
 })();

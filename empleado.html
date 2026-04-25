@@ -46,10 +46,34 @@
                     <div id="e_mensajes" class="obj-list"></div>
                 </div>
 
-                <div class="card">
-                    <h2><i class="ri-shopping-cart-2-line"></i> Vender Producto</h2>
-                    <div id="v_productos_grid" class="productos-grid">
-                        <!-- Botones de productos generados por JS -->
+                <div class="pos-container">
+                    <div class="card pos-productos">
+                        <h2><i class="ri-store-2-line"></i> Productos</h2>
+                        <div id="v_productos_grid" class="productos-grid">
+                            <!-- Botones de productos generados por JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="card pos-carrito">
+                        <h2><i class="ri-shopping-cart-2-line"></i> Carrito</h2>
+                        <div id="v_carrito_lista" class="carrito-lista">
+                            <!-- Items del carrito -->
+                            <div class="empty-cart">El carrito está vacío</div>
+                        </div>
+                        <div class="carrito-totales">
+                            <div class="total-row"><span>Total:</span> <strong id="v_carrito_total">$0.00</strong></div>
+                            <div class="payment-methods">
+                                <label class="pay-btn active" id="btn_pay_efectivo">
+                                    <input type="radio" name="payMethod" value="Efectivo" checked onclick="selectPayMethod('Efectivo')"> 
+                                    <i class="ri-money-dollar-circle-line"></i> Efectivo
+                                </label>
+                                <label class="pay-btn" id="btn_pay_transf">
+                                    <input type="radio" name="payMethod" value="Transferencia" onclick="selectPayMethod('Transferencia')"> 
+                                    <i class="ri-smartphone-line"></i> Transfer.
+                                </label>
+                            </div>
+                            <button class="btn-primary btn-checkout" onclick="procesarVentaCarrito()" id="btn_checkout" disabled>Cobrar</button>
+                        </div>
                     </div>
                 </div>
 
