@@ -6,7 +6,6 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <title>Panel Empleado</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <script>document.write('<link rel="stylesheet" href="styles.css?v=' + new Date().getTime() + '">');</script>
 </head>
 <body data-role="empleado">
     <div class="app-wrapper">
@@ -76,6 +75,16 @@
 
         </div>
     </div>
-    <script>document.write('<script src="script.js?v=' + new Date().getTime() + '"><\/script>');</script>
+
+    <!-- ANTI CACHE MODERNO -->
+    <script>
+        (function(){
+            var v = Date.now();
+            var link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'styles.css?v=' + v;
+            document.head.appendChild(link);
+            var script = document.createElement('script'); script.src = 'script.js?v=' + v;
+            document.body.appendChild(script);
+        })();
+    </script>
 </body>
 </html>
