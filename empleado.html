@@ -47,17 +47,17 @@
                 </div>
 
                 <div class="card">
-                    <h2><i class="ri-shopping-cart-2-line"></i> Registrar Venta</h2>
+                    <h2><i class="ri-shopping-cart-2-line"></i> Vender Producto</h2>
                     <form id="formVenta">
                         <div class="input-group">
-                            <label>Descripción / Producto</label>
-                            <input type="text" id="v_desc" required>
+                            <label>Seleccionar Producto</label>
+                            <select id="v_productoId" required></select>
                         </div>
                         <div class="input-group">
-                            <label>Monto ($)</label>
-                            <input type="number" id="v_monto" required inputmode="numeric">
+                            <label>Cantidad a Vender</label>
+                            <input type="number" id="v_cantidad" required inputmode="numeric" min="1" value="1">
                         </div>
-                        <button class="btn-primary" type="submit">Cargar Venta</button>
+                        <button class="btn-primary" type="submit">Procesar Venta</button>
                     </form>
                 </div>
 
@@ -76,7 +76,6 @@
         </div>
     </div>
 
-    <!-- ANTI CACHE MODERNO -->
     <script>
         (function(){
             var v = Date.now();
