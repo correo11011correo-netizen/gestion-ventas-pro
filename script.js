@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 2. Render Turno Live
             const tLive = document.getElementById('turnoLive');
-            if(db.turno) {
+            if(db.turno && db.turno.nombre) {
                 tLive.innerHTML = `
                     <div style="color:var(--success); font-weight:bold; margin-bottom:10px;"><i class="ri-record-circle-line pulse"></i> Turno Activo</div>
                     <div><strong>Empleado:</strong> ${db.turno.nombre}</div>
@@ -135,7 +135,12 @@ document.addEventListener('DOMContentLoaded', () => {
         window.delObj = (id) => { let db = getDB(); saveDB('vp_objetivos', db.objetivos.filter(o => o.id !== id)); };
         window.delMsg = (id) => { let db = getDB(); saveDB('vp_mensajes', db.mensajes.filter(m => m.id !== id)); };
 
+        // Forzar actualización al detectar cambios de la otra pestaña
         window.addEventListener('storage', renderDueno);
+        
+        // Sincronización infinita (Polling) para asegurar tiempo real
+        setInterval(renderDueno, 1500);
+        
         renderDueno();
     }
 
@@ -148,12 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const scrIni = document.getElementById('screen-iniciar');
             const scrAct = document.getElementById('screen-activo');
 
-            if (db.turno) {
+            if (db.turno && db.turno.empId) {
                 scrIni.style.display = 'none';
                 scrAct.style.display = 'block';
                 document.getElementById('e_nombreActivo').innerText = db.turno.nombre;
 
-                // 1. Render Objetivos ESPECÍFICOS para este empleado
+                // 1. Render Objetivos
                 const myObjs = db.objetivos.filter(o => o.empId === db.turno.empId);
                 document.getElementById('e_objetivos').innerHTML = myObjs.length > 0 ? myObjs.map(o => `
                     <div class="obj-card ${o.estado === 'cumplido' ? 'cumplido' : ''}">
@@ -162,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `).join('') : '<div style="color:var(--text-dim);font-size:0.9rem;">No tienes objetivos pendientes.</div>';
 
-                // 2. Render Mensajes ESPECÍFICOS para este empleado
+                // 2. Render Mensajes
                 const myMsgs = db.mensajes.filter(m => m.empId === db.turno.empId);
                 document.getElementById('e_mensajes').innerHTML = myMsgs.length > 0 ? myMsgs.map(m => `
                     <div class="obj-card" style="border-left-color:var(--success); background:#10b98111;">
@@ -175,19 +180,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrAct.style.display = 'none';
                 
                 const selectEmp = document.getElementById('e_empId');
+                // Guardar valor actual para no perder foco
+                const currVal = selectEmp.value;
                 selectEmp.innerHTML = '<option value="">-- Selecciona --</option>' + db.empleados.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
+                if(currVal) selectEmp.value = currVal;
             }
         };
 
         // Iniciar Turno
         document.getElementById('formTurno').addEventListener('submit', (e) => {
             e.preventDefault();
+            const db = getDB();
             const selectEmp = document.getElementById('e_empId');
-            const empNombre = selectEmp.options[selectEmp.selectedIndex].text;
+            const empId = selectEmp.value;
+            const empData = db.empleados.find(x => x.id === empId);
             
             saveDB('vp_turno', {
-                empId: selectEmp.value,
-                nombre: empNombre,
+                empId: empId,
+                nombre: empData ? empData.nombre : 'Desconocido',
                 caja: document.getElementById('e_cajaIni').value,
                 hora: new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})
             });
@@ -223,6 +233,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         window.addEventListener('storage', renderEmpleado);
+        
+        // Sincronización infinita (Polling)
+        setInterval(renderEmpleado, 1500);
+        
         renderEmpleado();
     }
 });
