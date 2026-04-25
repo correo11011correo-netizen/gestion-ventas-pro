@@ -207,7 +207,11 @@
                 scrIni.style.display = 'block';
                 scrAct.style.display = 'none';
                 const selectEmp = document.getElementById('e_empId');
-                selectEmp.innerHTML = '<option value="">-- ¿Quién eres? --</option>' + db.empleados.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
+                if (selectEmp.children.length !== (db.empleados.length + 1)) {
+                    const currentVal = selectEmp.value;
+                    selectEmp.innerHTML = '<option value="">-- ¿Quién eres? --</option>' + db.empleados.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
+                    selectEmp.value = currentVal;
+                }
             }
         };
 
