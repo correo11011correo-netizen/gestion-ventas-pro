@@ -5,7 +5,8 @@
         turno: JSON.parse(localStorage.getItem('vp_turno')) || null,
         ventas: JSON.parse(localStorage.getItem('vp_ventas')) || [],
         objetivos: JSON.parse(localStorage.getItem('vp_objetivos')) || [],
-        mensajes: JSON.parse(localStorage.getItem('vp_mensajes')) || []
+        mensajes: JSON.parse(localStorage.getItem('vp_mensajes')) || [],
+        productos: JSON.parse(localStorage.getItem('vp_productos')) || []
     });
 
     const saveDB = (key, data) => {
@@ -21,10 +22,17 @@
     if (ROLE === 'dueno') {
         let activeEmpId = null;
 
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+        };
+
         const renderDueno = () => {
             const db = getDB();
             
-            // 1. Render Lista Empleados
+            // 1. ADMIN EMPLEADOS
             const le = document.getElementById('listaEmpleados');
             le.innerHTML = db.empleados.map(e => `
                 <div class="mini-item">
@@ -36,7 +44,6 @@
                 </div>
             `).join('');
 
-            // 2. Render Turno Live
             const tLive = document.getElementById('turnoLive');
             if(db.turno && db.turno.nombre) {
                 tLive.innerHTML = `
@@ -49,21 +56,40 @@
                 tLive.innerHTML = '<div style="color:var(--text-dim);">No hay turnos activos actualmente.</div>';
             }
 
-            // 3. Render Ventas
-            const vTable = document.getElementById('ventasTable');
-            let total = 0;
+            // 2. ADMIN PRODUCTOS
+            const pTable = document.getElementById('productosTable');
+            pTable.innerHTML = db.productos.map(p => `
+                <tr>
+                    <td><strong>${p.nombre}</strong></td>
+                    <td style="${p.stock <= 5 ? 'color:var(--error);font-weight:bold;' : 'color:var(--success);'}">${p.stock}</td>
+                    <td>$${p.precio}</td>
+                    <td><button style="background:none;border:none;color:var(--error);cursor:pointer;" onclick="delProd('${p.id}')"><i class="ri-delete-bin-line"></i></button></td>
+                </tr>
+            `).join('');
+
+            // 3. ADMIN VENTAS (Historial General)
+            const vTable = document.getElementById('ventasAllTable');
+            let totalGeneral = 0;
             vTable.innerHTML = '';
             db.ventas.forEach(v => {
-                total += parseFloat(v.monto);
-                vTable.innerHTML += `<tr><td>${v.hora}</td><td>${v.desc}</td><td style="color:var(--success); font-weight:bold;">$${v.monto}</td></tr>`;
+                totalGeneral += parseFloat(v.total);
+                vTable.innerHTML += `
+                    <tr>
+                        <td style="font-size:0.8rem; color:var(--text-dim);">${v.fecha}<br>${v.hora}</td>
+                        <td>${v.vendedor}</td>
+                        <td>${v.productoNombre}</td>
+                        <td>x${v.cantidad}</td>
+                        <td style="color:var(--success); font-weight:bold;">$${v.total}</td>
+                    </tr>
+                `;
             });
-            document.getElementById('totalVentas').innerText = total.toFixed(2);
+            document.getElementById('totalVentasGlobal').innerText = totalGeneral.toFixed(2);
 
-            // 4. Actualizar Modal si está abierto
+            // Modal Update
             if(activeEmpId) renderModal(activeEmpId);
         };
 
-        // ALTA EMPLEADO
+        // EVENTOS EMPLEADO
         document.getElementById('formAddEmpleado').addEventListener('submit', (e) => {
             e.preventDefault();
             const db = getDB();
@@ -71,7 +97,6 @@
             saveDB('vp_empleados', db.empleados);
             e.target.reset();
         });
-
         window.delEmp = (id) => {
             if(!confirm("¿Eliminar empleado?")) return;
             let db = getDB();
@@ -79,23 +104,37 @@
             saveDB('vp_empleados', db.empleados);
         };
 
-        // --- LÓGICA DEL MODAL DE GESTIÓN ---
+        // EVENTOS PRODUCTO
+        document.getElementById('formAddProducto').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const db = getDB();
+            db.productos.push({
+                id: 'P'+Date.now(),
+                nombre: document.getElementById('p_nombre').value,
+                precio: parseFloat(document.getElementById('p_precio').value).toFixed(2),
+                stock: parseInt(document.getElementById('p_stock').value)
+            });
+            saveDB('vp_productos', db.productos);
+            e.target.reset();
+            alert("Producto guardado");
+        });
+        window.delProd = (id) => {
+            if(!confirm("¿Eliminar producto?")) return;
+            let db = getDB();
+            db.productos = db.productos.filter(p => p.id !== id);
+            saveDB('vp_productos', db.productos);
+        }
+
+        // EVENTOS MODAL
         window.abrirModal = (id, nombre) => {
             activeEmpId = id;
             document.getElementById('modalEmpTitle').innerHTML = `<i class="ri-user-star-line"></i> Gestión: ${nombre}`;
             document.getElementById('modalEmp').style.display = 'flex';
             renderModal(id);
         };
-
-        window.cerrarModal = () => {
-            activeEmpId = null;
-            document.getElementById('modalEmp').style.display = 'none';
-        };
-
+        window.cerrarModal = () => { activeEmpId = null; document.getElementById('modalEmp').style.display = 'none'; };
         const renderModal = (empId) => {
             const db = getDB();
-            
-            // Filtrar y renderizar Objetivos del empleado
             const myObjs = db.objetivos.filter(o => o.empId === empId);
             document.getElementById('modalObjList').innerHTML = myObjs.map(o => `
                 <div class="mini-item ${o.estado === 'cumplido' ? 'cumplido' : ''}" style="${o.estado === 'cumplido' ? 'border-color:var(--success);' : ''}">
@@ -104,7 +143,6 @@
                 </div>
             `).join('') || '<div style="color:var(--text-dim); font-size:0.8rem;">Sin objetivos asignados</div>';
 
-            // Filtrar y renderizar Mensajes del empleado
             const myMsgs = db.mensajes.filter(m => m.empId === empId);
             document.getElementById('modalMsgList').innerHTML = myMsgs.map(m => `
                 <div class="mini-item" style="border-left: 3px solid var(--success);">
@@ -113,34 +151,13 @@
                 </div>
             `).join('') || '<div style="color:var(--text-dim); font-size:0.8rem;">No hay mensajes</div>';
         };
-
-        document.getElementById('formAddObj').addEventListener('submit', (e) => {
-            e.preventDefault();
-            if(!activeEmpId) return;
-            const db = getDB();
-            db.objetivos.push({ id: 'O'+Date.now(), empId: activeEmpId, texto: document.getElementById('d_objTexto').value, estado: 'pendiente' });
-            saveDB('vp_objetivos', db.objetivos);
-            e.target.reset();
-        });
-
-        document.getElementById('formAddMsg').addEventListener('submit', (e) => {
-            e.preventDefault();
-            if(!activeEmpId) return;
-            const db = getDB();
-            db.mensajes.push({ id: 'M'+Date.now(), empId: activeEmpId, texto: document.getElementById('d_msgTexto').value });
-            saveDB('vp_mensajes', db.mensajes);
-            e.target.reset();
-        });
-
+        document.getElementById('formAddObj').addEventListener('submit', (e) => { e.preventDefault(); if(!activeEmpId) return; const db = getDB(); db.objetivos.push({ id: 'O'+Date.now(), empId: activeEmpId, texto: document.getElementById('d_objTexto').value, estado: 'pendiente' }); saveDB('vp_objetivos', db.objetivos); e.target.reset(); });
+        document.getElementById('formAddMsg').addEventListener('submit', (e) => { e.preventDefault(); if(!activeEmpId) return; const db = getDB(); db.mensajes.push({ id: 'M'+Date.now(), empId: activeEmpId, texto: document.getElementById('d_msgTexto').value }); saveDB('vp_mensajes', db.mensajes); e.target.reset(); });
         window.delObj = (id) => { let db = getDB(); saveDB('vp_objetivos', db.objetivos.filter(o => o.id !== id)); };
         window.delMsg = (id) => { let db = getDB(); saveDB('vp_mensajes', db.mensajes.filter(m => m.id !== id)); };
 
-        // Forzar actualización al detectar cambios de la otra pestaña
         window.addEventListener('storage', renderDueno);
-        
-        // Sincronización infinita (Polling) para asegurar tiempo real
         setInterval(renderDueno, 1500);
-        
         renderDueno();
     }
 
@@ -158,7 +175,17 @@
                 scrAct.style.display = 'block';
                 document.getElementById('e_nombreActivo').innerText = db.turno.nombre;
 
-                // 1. Render Objetivos
+                // Select Productos (Solo con stock)
+                const sProd = document.getElementById('v_productoId');
+                const currProd = sProd.value;
+                sProd.innerHTML = '<option value="">-- Elige un producto --</option>' + db.productos.map(p => {
+                    const disabled = p.stock <= 0 ? 'disabled' : '';
+                    const stockMsg = p.stock <= 0 ? '(Agotado)' : `(Stock: ${p.stock})`;
+                    return `<option value="${p.id}" ${disabled}>${p.nombre} - $${p.precio} ${stockMsg}</option>`;
+                }).join('');
+                if(currProd) sProd.value = currProd;
+
+                // Objetivos y Mensajes
                 const myObjs = db.objetivos.filter(o => o.empId === db.turno.empId);
                 document.getElementById('e_objetivos').innerHTML = myObjs.length > 0 ? myObjs.map(o => `
                     <div class="obj-card ${o.estado === 'cumplido' ? 'cumplido' : ''}">
@@ -167,7 +194,6 @@
                     </div>
                 `).join('') : '<div style="color:var(--text-dim);font-size:0.9rem;">No tienes objetivos pendientes.</div>';
 
-                // 2. Render Mensajes
                 const myMsgs = db.mensajes.filter(m => m.empId === db.turno.empId);
                 document.getElementById('e_mensajes').innerHTML = myMsgs.length > 0 ? myMsgs.map(m => `
                     <div class="obj-card" style="border-left-color:var(--success); background:#10b98111;">
@@ -178,9 +204,7 @@
             } else {
                 scrIni.style.display = 'block';
                 scrAct.style.display = 'none';
-                
                 const selectEmp = document.getElementById('e_empId');
-                // Guardar valor actual para no perder foco
                 const currVal = selectEmp.value;
                 selectEmp.innerHTML = '<option value="">-- Selecciona --</option>' + db.empleados.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
                 if(currVal) selectEmp.value = currVal;
@@ -204,39 +228,52 @@
             renderEmpleado();
         });
 
-        // Registrar Venta
+        // Registrar Venta (Descontar Stock y Calcular Precio)
         document.getElementById('formVenta').addEventListener('submit', (e) => {
             e.preventDefault();
-            const db = getDB();
+            let db = getDB();
+            const prodId = document.getElementById('v_productoId').value;
+            const cantidad = parseInt(document.getElementById('v_cantidad').value);
+
+            if(!prodId) return alert("Selecciona un producto");
+
+            // Buscar producto
+            let prodIndex = db.productos.findIndex(p => p.id === prodId);
+            if(prodIndex === -1) return alert("Producto no encontrado");
+
+            let producto = db.productos[prodIndex];
+
+            // Validar Stock
+            if(producto.stock < cantidad) {
+                return alert(`No hay stock suficiente. Solo quedan ${producto.stock} unidades.`);
+            }
+
+            // Descontar Stock
+            db.productos[prodIndex].stock -= cantidad;
+            saveDB('vp_productos', db.productos);
+
+            // Registrar Venta
+            const total = (parseFloat(producto.precio) * cantidad).toFixed(2);
             db.ventas.unshift({
+                id: 'V'+Date.now(),
+                fecha: new Date().toLocaleDateString('es-ES'),
                 hora: new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'}),
-                desc: document.getElementById('v_desc').value,
-                monto: document.getElementById('v_monto').value
+                vendedor: db.turno.nombre,
+                productoNombre: producto.nombre,
+                cantidad: cantidad,
+                total: total
             });
             saveDB('vp_ventas', db.ventas);
+            
             e.target.reset();
-            alert("✅ Venta registrada");
+            alert(`✅ Venta registrada: $${total}\nStock restante: ${db.productos[prodIndex].stock}`);
         });
 
-        window.cumplirObj = (id) => {
-            const db = getDB();
-            const obj = db.objetivos.find(o => o.id === id);
-            if(obj) { obj.estado = 'cumplido'; saveDB('vp_objetivos', db.objetivos); }
-        };
-
-        window.cerrarTurno = () => {
-            if(confirm("¿Estás seguro de cerrar el turno?")) {
-                localStorage.removeItem('vp_turno');
-                window.dispatchEvent(new Event('storage'));
-                renderEmpleado();
-            }
-        };
+        window.cumplirObj = (id) => { const db = getDB(); const obj = db.objetivos.find(o => o.id === id); if(obj) { obj.estado = 'cumplido'; saveDB('vp_objetivos', db.objetivos); } };
+        window.cerrarTurno = () => { if(confirm("¿Estás seguro de cerrar el turno?")) { localStorage.removeItem('vp_turno'); window.dispatchEvent(new Event('storage')); renderEmpleado(); } };
 
         window.addEventListener('storage', renderEmpleado);
-        
-        // Sincronización infinita (Polling)
         setInterval(renderEmpleado, 1500);
-        
         renderEmpleado();
     }
 })();
