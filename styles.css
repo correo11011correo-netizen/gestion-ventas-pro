@@ -31,8 +31,11 @@ body { background-color: var(--bg-app); color: var(--text); overflow-x: hidden; 
 
 /* LAYOUT */
 .content-area { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; flex: 1; }
-.tab-content { display: none; }
-.tab-content.active { display: block; }
+
+.tab-content { display: none !important; }
+.tab-content.active { display: block !important; }
+.tab-content.active.grid-layout { display: grid !important; }
+
 .grid-layout { display: grid; grid-template-columns: 1fr; gap: 20px; }
 @media (min-width: 1024px) { .grid-layout { grid-template-columns: 380px 1fr; } }
 
