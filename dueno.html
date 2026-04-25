@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Panel Dueño</title>
+    <title>Panel Dueño - Gestión Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body data-role="dueno">
@@ -19,77 +19,69 @@
             </div>
         </header>
 
-        <!-- NAVEGADOR DE PESTAÑAS -->
-        <div class="dueno-nav">
-            <button class="tab-btn active" onclick="switchTab('empleados')"><i class="ri-team-line"></i> Admin Empleados</button>
-            <button class="tab-btn" onclick="switchTab('productos')"><i class="ri-box-3-line"></i> Admin Productos</button>
-            <button class="tab-btn" onclick="switchTab('ventas')"><i class="ri-bar-chart-box-line"></i> Admin Ventas</button>
-        </div>
+        <nav class="dueno-nav">
+            <button class="tab-btn active" onclick="switchTab('empleados')"><i class="ri-team-line"></i> Personal</button>
+            <button class="tab-btn" onclick="switchTab('productos')"><i class="ri-box-3-line"></i> Inventario</button>
+            <button class="tab-btn" onclick="switchTab('ventas')"><i class="ri-bar-chart-box-line"></i> Ventas y Stats</button>
+        </nav>
 
         <div class="content-area">
             
-            <!-- ==============================
-                 TAB: ADMIN EMPLEADOS
-            =============================== -->
+            <!-- PESTAÑA 1: GESTIÓN DE EMPLEADOS -->
             <div id="tab-empleados" class="tab-content active grid-layout">
                 <div class="column-left">
                     <div class="card">
-                        <h2><i class="ri-user-add-line"></i> Alta Empleado</h2>
+                        <h2><i class="ri-user-add-line"></i> Nuevo Empleado</h2>
                         <form id="formAddEmpleado">
                             <div class="input-group">
-                                <input type="text" id="d_nombreEmp" required placeholder="Nombre del empleado">
+                                <input type="text" id="d_nombreEmp" required placeholder="Nombre completo">
                             </div>
-                            <button class="btn-primary" type="submit">Guardar Empleado</button>
+                            <button class="btn-primary" type="submit">Dar de Alta</button>
                         </form>
                     </div>
-
                     <div class="card">
-                        <h2><i class="ri-user-settings-line"></i> Gestión de Personal</h2>
+                        <h2><i class="ri-user-settings-line"></i> Lista de Personal</h2>
                         <div id="listaEmpleados" class="mini-list"></div>
                     </div>
                 </div>
-
                 <div class="column-right">
                     <div class="card bg-accent">
-                        <h2><i class="ri-time-line"></i> Turno Actual (En Vivo)</h2>
-                        <div id="turnoLive" class="turno-data">Esperando conexión...</div>
+                        <h2><i class="ri-time-line"></i> Actividad en el Local</h2>
+                        <div id="turnoLive" class="turno-data">No hay empleados trabajando.</div>
                     </div>
                 </div>
             </div>
 
-            <!-- ==============================
-                 TAB: ADMIN PRODUCTOS
-            =============================== -->
+            <!-- PESTAÑA 2: GESTIÓN DE PRODUCTOS -->
             <div id="tab-productos" class="tab-content grid-layout">
                 <div class="column-left">
                     <div class="card">
-                        <h2><i class="ri-add-box-line"></i> Nuevo Producto</h2>
+                        <h2><i class="ri-add-circle-line"></i> Cargar Stock</h2>
                         <form id="formAddProducto">
                             <div class="input-group">
-                                <label>Nombre del Producto / Servicio</label>
+                                <label>Nombre del Producto</label>
                                 <input type="text" id="p_nombre" required>
                             </div>
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <div class="input-row">
                                 <div class="input-group">
                                     <label>Precio ($)</label>
-                                    <input type="number" id="p_precio" required inputmode="numeric" step="0.01">
+                                    <input type="number" id="p_precio" required inputmode="decimal" step="0.01">
                                 </div>
                                 <div class="input-group">
-                                    <label>Stock Disp.</label>
+                                    <label>Stock</label>
                                     <input type="number" id="p_stock" required inputmode="numeric">
                                 </div>
                             </div>
-                            <button class="btn-primary" type="submit" style="background:#10b981;">Guardar Producto</button>
+                            <button class="btn-primary" type="submit" style="background:#10b981;">Guardar en Inventario</button>
                         </form>
                     </div>
                 </div>
-
                 <div class="column-right">
                     <div class="card">
-                        <h2><i class="ri-archive-line"></i> Inventario Local</h2>
+                        <h2><i class="ri-archive-line"></i> Control de Inventario</h2>
                         <div class="table-scroll">
                             <table class="mobile-table">
-                                <thead><tr><th>Producto</th><th>Stock</th><th>Precio</th><th></th></tr></thead>
+                                <thead><tr><th>Producto</th><th>Stock</th><th>Precio</th><th>Acción</th></tr></thead>
                                 <tbody id="productosTable"></tbody>
                             </table>
                         </div>
@@ -97,16 +89,28 @@
                 </div>
             </div>
 
-            <!-- ==============================
-                 TAB: ADMIN VENTAS
-            =============================== -->
+            <!-- PESTAÑA 3: ANALÍTICA Y VENTAS -->
             <div id="tab-ventas" class="tab-content">
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <h3>Recaudación Total</h3>
+                        <div class="stat-value success">$<span id="totalVentasGlobal">0</span></div>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>Más Vendido</h3>
+                        <div id="topProducto" class="stat-value" style="font-size:1.2rem;">-</div>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>Mejor Vendedor</h3>
+                        <div id="topVendedor" class="stat-value" style="font-size:1.2rem; color:#6366f1;">-</div>
+                    </div>
+                </div>
+
                 <div class="card">
-                    <h2><i class="ri-money-dollar-circle-line"></i> Historial General de Ventas</h2>
-                    <div class="total-ventas" style="margin-bottom:15px; text-align:left;">Recaudación Total: $<span id="totalVentasGlobal">0</span></div>
+                    <h2><i class="ri-history-line"></i> Historial de Operaciones</h2>
                     <div class="table-scroll">
                         <table class="mobile-table">
-                            <thead><tr><th>Fecha/Hora</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Total</th></tr></thead>
+                            <thead><tr><th>Fecha/Hora</th><th>Vendedor</th><th>Producto</th><th>Cant.</th><th>Total</th></tr></thead>
                             <tbody id="ventasAllTable"></tbody>
                         </table>
                     </div>
@@ -120,18 +124,16 @@
     <div id="modalEmp" class="modal" style="display:none;">
         <div class="modal-content">
             <i class="ri-close-line close-btn" onclick="cerrarModal()"></i>
-            <h2 id="modalEmpTitle" style="color:var(--accent);"><i class="ri-user-star-line"></i> Empleado</h2>
-            
-            <h3 class="section-title"><i class="ri-flag-2-line"></i> Objetivos del Empleado</h3>
+            <h2 id="modalEmpTitle" style="color:var(--accent);"></h2>
+            <h3 class="section-title"><i class="ri-flag-2-line"></i> Objetivos</h3>
             <form id="formAddObj" class="flex-form">
-                <input type="text" id="d_objTexto" required placeholder="Ej: Vender 3 fundas...">
+                <input type="text" id="d_objTexto" required placeholder="Nuevo objetivo...">
                 <button type="submit" class="btn-icon-submit" style="background:var(--accent);"><i class="ri-add-line"></i></button>
             </form>
-            <div id="modalObjList" class="mini-list" style="margin-bottom:25px;"></div>
-
-            <h3 class="section-title"><i class="ri-message-3-line"></i> Avisos / Mensajes</h3>
+            <div id="modalObjList" class="mini-list" style="margin-bottom:20px;"></div>
+            <h3 class="section-title"><i class="ri-chat-1-line"></i> Mensajes Directos</h3>
             <form id="formAddMsg" class="flex-form">
-                <input type="text" id="d_msgTexto" required placeholder="Ej: Limpiar caja...">
+                <input type="text" id="d_msgTexto" required placeholder="Escribir aviso...">
                 <button type="submit" class="btn-icon-submit" style="background:var(--success);"><i class="ri-send-plane-fill"></i></button>
             </form>
             <div id="modalMsgList" class="mini-list"></div>
