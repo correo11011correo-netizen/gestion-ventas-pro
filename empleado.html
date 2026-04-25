@@ -41,6 +41,12 @@
                     <i class="ri-user-line"></i> Turno activo: <strong id="e_nombreActivo"></strong>
                 </div>
 
+                <!-- AVISOS DEL DUEÑO -->
+                <div class="card" style="border-left: 4px solid var(--success);">
+                    <h2><i class="ri-message-3-line"></i> Avisos del Dueño</h2>
+                    <div id="e_mensajes" class="obj-list"></div>
+                </div>
+
                 <div class="card">
                     <h2><i class="ri-shopping-cart-2-line"></i> Registrar Venta</h2>
                     <form id="formVenta">
@@ -57,11 +63,11 @@
                 </div>
 
                 <div class="card">
-                    <h2><i class="ri-flag-2-line"></i> Mis Objetivos</h2>
+                    <h2><i class="ri-flag-2-line"></i> Mis Objetivos de Hoy</h2>
                     <div id="e_objetivos" class="obj-list"></div>
                 </div>
 
-                <div class="card" style="border-color:var(--error);">
+                <div class="card" style="border-color:var(--error); background:transparent;">
                     <button class="btn-primary" style="background:var(--error);" onclick="cerrarTurno()">
                         <i class="ri-stop-circle-line"></i> Finalizar Turno
                     </button>
