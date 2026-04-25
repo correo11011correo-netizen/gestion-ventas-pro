@@ -19,42 +19,100 @@
             </div>
         </header>
 
-        <div class="content-area grid-layout">
-            <div class="column-left">
-                <div class="card">
-                    <h2><i class="ri-user-add-line"></i> Alta Empleado</h2>
-                    <form id="formAddEmpleado">
-                        <div class="input-group">
-                            <input type="text" id="d_nombreEmp" required placeholder="Nombre del empleado">
-                        </div>
-                        <button class="btn-primary" type="submit">Guardar Empleado</button>
-                    </form>
+        <!-- NAVEGADOR DE PESTAÑAS -->
+        <div class="dueno-nav">
+            <button class="tab-btn active" onclick="switchTab('empleados')"><i class="ri-team-line"></i> Admin Empleados</button>
+            <button class="tab-btn" onclick="switchTab('productos')"><i class="ri-box-3-line"></i> Admin Productos</button>
+            <button class="tab-btn" onclick="switchTab('ventas')"><i class="ri-bar-chart-box-line"></i> Admin Ventas</button>
+        </div>
+
+        <div class="content-area">
+            
+            <!-- ==============================
+                 TAB: ADMIN EMPLEADOS
+            =============================== -->
+            <div id="tab-empleados" class="tab-content active grid-layout">
+                <div class="column-left">
+                    <div class="card">
+                        <h2><i class="ri-user-add-line"></i> Alta Empleado</h2>
+                        <form id="formAddEmpleado">
+                            <div class="input-group">
+                                <input type="text" id="d_nombreEmp" required placeholder="Nombre del empleado">
+                            </div>
+                            <button class="btn-primary" type="submit">Guardar Empleado</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h2><i class="ri-user-settings-line"></i> Gestión de Personal</h2>
+                        <div id="listaEmpleados" class="mini-list"></div>
+                    </div>
                 </div>
 
-                <div class="card">
-                    <h2><i class="ri-user-settings-line"></i> Gestión de Personal</h2>
-                    <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:15px;">Selecciona un empleado para ver opciones.</p>
-                    <div id="listaEmpleados" class="mini-list"></div>
+                <div class="column-right">
+                    <div class="card bg-accent">
+                        <h2><i class="ri-time-line"></i> Turno Actual (En Vivo)</h2>
+                        <div id="turnoLive" class="turno-data">Esperando conexión...</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="column-right">
-                <div class="card bg-accent">
-                    <h2><i class="ri-time-line"></i> Turno Actual (En Vivo)</h2>
-                    <div id="turnoLive" class="turno-data">Esperando conexión...</div>
+            <!-- ==============================
+                 TAB: ADMIN PRODUCTOS
+            =============================== -->
+            <div id="tab-productos" class="tab-content grid-layout">
+                <div class="column-left">
+                    <div class="card">
+                        <h2><i class="ri-add-box-line"></i> Nuevo Producto</h2>
+                        <form id="formAddProducto">
+                            <div class="input-group">
+                                <label>Nombre del Producto / Servicio</label>
+                                <input type="text" id="p_nombre" required>
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                                <div class="input-group">
+                                    <label>Precio ($)</label>
+                                    <input type="number" id="p_precio" required inputmode="numeric" step="0.01">
+                                </div>
+                                <div class="input-group">
+                                    <label>Stock Disp.</label>
+                                    <input type="number" id="p_stock" required inputmode="numeric">
+                                </div>
+                            </div>
+                            <button class="btn-primary" type="submit" style="background:#10b981;">Guardar Producto</button>
+                        </form>
+                    </div>
                 </div>
 
+                <div class="column-right">
+                    <div class="card">
+                        <h2><i class="ri-archive-line"></i> Inventario Local</h2>
+                        <div class="table-scroll">
+                            <table class="mobile-table">
+                                <thead><tr><th>Producto</th><th>Stock</th><th>Precio</th><th></th></tr></thead>
+                                <tbody id="productosTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==============================
+                 TAB: ADMIN VENTAS
+            =============================== -->
+            <div id="tab-ventas" class="tab-content">
                 <div class="card">
-                    <h2><i class="ri-money-dollar-circle-line"></i> Ventas del Turno</h2>
+                    <h2><i class="ri-money-dollar-circle-line"></i> Historial General de Ventas</h2>
+                    <div class="total-ventas" style="margin-bottom:15px; text-align:left;">Recaudación Total: $<span id="totalVentasGlobal">0</span></div>
                     <div class="table-scroll">
                         <table class="mobile-table">
-                            <thead><tr><th>Hora</th><th>Descripción</th><th>Monto</th></tr></thead>
-                            <tbody id="ventasTable"></tbody>
+                            <thead><tr><th>Fecha/Hora</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Total</th></tr></thead>
+                            <tbody id="ventasAllTable"></tbody>
                         </table>
                     </div>
-                    <div class="total-ventas">Total: $<span id="totalVentas">0</span></div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -80,7 +138,6 @@
         </div>
     </div>
 
-    <!-- ANTI CACHE MODERNO -->
     <script>
         (function(){
             var v = Date.now();
