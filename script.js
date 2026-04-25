@@ -173,7 +173,7 @@
     // PANEL EMPLEADO
     // ==========================================
     if (ROLE === 'empleado') {
-        if (!document.getElementById('v_productoId')) {
+        if (!document.getElementById('v_productos_grid')) {
             window.location.replace(window.location.pathname + '?nocache=' + Date.now());
             return;
         }
@@ -188,10 +188,21 @@
                 scrAct.style.display = 'block';
                 document.getElementById('e_nombreActivo').innerText = db.turno.nombre;
 
-                const sProd = document.getElementById('v_productoId');
-                const curr = sProd.value;
-                sProd.innerHTML = '<option value="">-- Seleccionar --</option>' + db.productos.map(p => `<option value="${p.id}" ${p.stock <= 0 ? 'disabled' : ''}>${p.nombre} ($${p.precio}) - Stock: ${p.stock}</option>`).join('');
-                if(curr) sProd.value = curr;
+                const gridProd = document.getElementById('v_productos_grid');
+                if (gridProd) {
+                    const newGridHTML = db.productos.map(p => `
+                        <button class="prod-btn" ${p.stock <= 0 ? 'disabled' : ''} onclick="venderRapido('${p.id}')">
+                            <span class="p-name">${p.nombre}</span>
+                            <span class="p-price">$${p.precio}</span>
+                            <span class="p-stock">Stock: ${p.stock}</span>
+                        </button>
+                    `).join('');
+                    
+                    // Solo actualizar si hay cambios visuales para no parpadear
+                    if (gridProd.innerHTML !== newGridHTML) {
+                        gridProd.innerHTML = newGridHTML;
+                    }
+                }
 
                 const myObjs = db.objetivos.filter(o => o.empId === db.turno.empId);
                 document.getElementById('e_objetivos').innerHTML = myObjs.map(o => `
@@ -224,25 +235,20 @@
             renderEmpleado();
         });
 
-        document.getElementById('formVenta').addEventListener('submit', (e) => {
-            e.preventDefault();
+        window.venderRapido = (pId) => {
             let db = getDB();
-            const pId = document.getElementById('v_productoId').value;
-            const cant = parseInt(document.getElementById('v_cantidad').value);
             const pIdx = db.productos.findIndex(x => x.id === pId);
             const prod = db.productos[pIdx];
 
-            if (prod.stock < cant) return alert("No hay stock!");
+            if (prod.stock < 1) return alert("¡No hay stock suficiente!");
 
-            db.productos[pIdx].stock -= cant;
+            db.productos[pIdx].stock -= 1;
             saveDB('vp_productos', db.productos);
 
-            const total = (parseFloat(prod.precio) * cant).toFixed(2);
-            db.ventas.unshift({ id: 'V'+Date.now(), fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'}), vendedor: db.turno.nombre, productoNombre: prod.nombre, cantidad: cant, total: total });
+            const total = parseFloat(prod.precio).toFixed(2);
+            db.ventas.unshift({ id: 'V'+Date.now(), fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'}), vendedor: db.turno.nombre, productoNombre: prod.nombre, cantidad: 1, total: total });
             saveDB('vp_ventas', db.ventas);
-            e.target.reset();
-            alert("Venta registrada");
-        });
+        };
 
         window.cumplirObj = (id) => { const db = getDB(); const o = db.objetivos.find(x => x.id === id); if(o){ o.estado = 'cumplido'; saveDB('vp_objetivos', db.objetivos); } };
         window.cerrarTurno = () => { if(confirm("Cerrar?")){ localStorage.removeItem('vp_turno'); window.dispatchEvent(new Event('storage')); renderEmpleado(); } };

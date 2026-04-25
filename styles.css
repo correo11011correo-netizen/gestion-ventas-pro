@@ -77,3 +77,12 @@ h2 { font-size: 1.1rem; margin-bottom: 20px; display: flex; align-items: center;
 .flex-form { display: flex; gap: 10px; margin-bottom: 15px; }
 .flex-form input { flex: 1; background: var(--bg-app); border: 1px solid var(--border); padding: 12px; border-radius: 10px; color: white; outline: none; }
 .btn-icon-submit { border: none; color: white; width: 45px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; }
+
+/* PRODUCTOS GRID EMPLEADO */
+.productos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+.prod-btn { background: var(--bg-app); border: 2px solid var(--border); border-radius: 15px; padding: 15px 10px; text-align: center; cursor: pointer; transition: 0.2s; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; }
+.prod-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--card-bg); transform: translateY(-3px); }
+.prod-btn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--error); }
+.prod-btn .p-name { font-weight: bold; font-size: 0.95rem; margin-bottom: 5px; }
+.prod-btn .p-price { color: var(--success); font-size: 0.85rem; background: #10b98122; padding: 3px 8px; border-radius: 6px; }
+.prod-btn .p-stock { color: var(--text-dim); font-size: 0.75rem; margin-top: 8px; }
