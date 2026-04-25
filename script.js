@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+(function() {
     // --- DATABASE LOCAL ---
     const getDB = () => ({
         empleados: JSON.parse(localStorage.getItem('vp_empleados')) || [],
@@ -239,4 +239,4 @@ document.addEventListener('DOMContentLoaded', () => {
         
         renderEmpleado();
     }
-});
+})();
