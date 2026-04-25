@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Panel Empleado</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script>document.write('<link rel="stylesheet" href="styles.css?v=' + new Date().getTime() + '">');</script>
+</head>
+<body data-role="empleado">
+    <div class="app-wrapper">
+        <header class="main-header" style="background:#064e3b; border-bottom-color:#047857;">
+            <div class="logo">
+                <i class="ri-user-smile-fill" style="color:#34d399;"></i>
+                <h1>PANEL<span>EMPLEADO</span></h1>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <!-- PANTALLA INICIAR TURNO -->
+            <div id="screen-iniciar" class="card">
+                <h2><i class="ri-play-circle-line"></i> Iniciar Turno</h2>
+                <form id="formTurno">
+                    <div class="input-group">
+                        <label>Selecciona tu nombre</label>
+                        <select id="e_empId" required></select>
+                    </div>
+                    <div class="input-group">
+                        <label>Efectivo inicial en caja ($)</label>
+                        <input type="number" id="e_cajaIni" required inputmode="numeric">
+                    </div>
+                    <button class="btn-primary" style="background:#10b981;" type="submit">Marcar Ingreso</button>
+                </form>
+            </div>
+
+            <!-- PANTALLA TURNO ACTIVO -->
+            <div id="screen-activo" style="display:none;">
+                <div class="status-msg success" style="margin-bottom:20px;">
+                    <i class="ri-user-line"></i> Turno activo: <strong id="e_nombreActivo"></strong>
+                </div>
+
+                <div class="card">
+                    <h2><i class="ri-shopping-cart-2-line"></i> Registrar Venta</h2>
+                    <form id="formVenta">
+                        <div class="input-group">
+                            <label>Descripción / Producto</label>
+                            <input type="text" id="v_desc" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Monto ($)</label>
+                            <input type="number" id="v_monto" required inputmode="numeric">
+                        </div>
+                        <button class="btn-primary" type="submit">Cargar Venta</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2><i class="ri-flag-2-line"></i> Mis Objetivos</h2>
+                    <div id="e_objetivos" class="obj-list"></div>
+                </div>
+
+                <div class="card" style="border-color:var(--error);">
+                    <button class="btn-primary" style="background:var(--error);" onclick="cerrarTurno()">
+                        <i class="ri-stop-circle-line"></i> Finalizar Turno
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script>document.write('<script src="script.js?v=' + new Date().getTime() + '"><\/script>');</script>
+</body>
+</html>
