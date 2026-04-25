@@ -19,7 +19,12 @@
     // ==========================================
     // PANEL DUEÑO
     // ==========================================
-    if (ROLE === 'dueno') {
+        if (ROLE === 'dueno') {
+        // ANTI-CACHE HTML: Si el HTML viejo no tiene las pestañas, forzar recarga dura
+        if (!document.querySelector('.dueno-nav')) {
+            window.location.replace(window.location.pathname + '?nocache=' + Date.now());
+            return;
+        }
         let activeEmpId = null;
 
         window.switchTab = (tabId) => {
@@ -164,7 +169,12 @@
     // ==========================================
     // PANEL EMPLEADO
     // ==========================================
-    if (ROLE === 'empleado') {
+        if (ROLE === 'empleado') {
+        // ANTI-CACHE HTML: Si el HTML viejo no tiene el selector de productos, forzar recarga dura
+        if (!document.getElementById('v_productoId')) {
+            window.location.replace(window.location.pathname + '?nocache=' + Date.now());
+            return;
+        }
         const renderEmpleado = () => {
             const db = getDB();
             const scrIni = document.getElementById('screen-iniciar');
