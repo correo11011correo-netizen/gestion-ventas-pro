@@ -21,7 +21,7 @@
         </header>
 
         <div class="content-area grid-layout">
-            <!-- COLUMNA IZQUIERDA: CONFIGURACIÓN -->
+            <!-- COLUMNA IZQUIERDA: PERSONAL -->
             <div class="column-left">
                 <div class="card">
                     <h2><i class="ri-user-add-line"></i> Alta Empleado</h2>
@@ -31,29 +31,24 @@
                         </div>
                         <button class="btn-primary" type="submit">Guardar Empleado</button>
                     </form>
-                    <div id="listaEmpleados" class="mini-list" style="margin-top:15px;"></div>
                 </div>
 
                 <div class="card">
-                    <h2><i class="ri-target-line"></i> Asignar Objetivo</h2>
-                    <form id="formAddObj">
-                        <div class="input-group">
-                            <input type="text" id="d_objTexto" required placeholder="Ej: Vender 5 accesorios">
-                        </div>
-                        <button class="btn-primary" style="background:#f59e0b;" type="submit">Agregar Objetivo</button>
-                    </form>
+                    <h2><i class="ri-user-settings-line"></i> Gestión de Personal</h2>
+                    <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:15px;">Selecciona un empleado para ver opciones.</p>
+                    <div id="listaEmpleados" class="mini-list"></div>
                 </div>
             </div>
 
             <!-- COLUMNA DERECHA: MONITOREO EN VIVO -->
             <div class="column-right">
                 <div class="card bg-accent">
-                    <h2><i class="ri-time-line"></i> Turno Actual</h2>
-                    <div id="turnoLive" class="turno-data">Esperando que un empleado inicie turno...</div>
+                    <h2><i class="ri-time-line"></i> Turno Actual (En Vivo)</h2>
+                    <div id="turnoLive" class="turno-data">Esperando conexión...</div>
                 </div>
 
                 <div class="card">
-                    <h2><i class="ri-money-dollar-circle-line"></i> Ventas en Tiempo Real</h2>
+                    <h2><i class="ri-money-dollar-circle-line"></i> Ventas del Turno</h2>
                     <div class="table-scroll">
                         <table class="mobile-table">
                             <thead><tr><th>Hora</th><th>Descripción</th><th>Monto</th></tr></thead>
@@ -62,14 +57,32 @@
                     </div>
                     <div class="total-ventas">Total: $<span id="totalVentas">0</span></div>
                 </div>
-
-                <div class="card">
-                    <h2><i class="ri-checkbox-circle-line"></i> Control de Objetivos</h2>
-                    <div id="objetivosLive" class="obj-list"></div>
-                </div>
             </div>
         </div>
     </div>
+
+    <!-- MODAL GESTION EMPLEADO -->
+    <div id="modalEmp" class="modal" style="display:none;">
+        <div class="modal-content">
+            <i class="ri-close-line close-btn" onclick="cerrarModal()"></i>
+            <h2 id="modalEmpTitle" style="color:var(--accent);"><i class="ri-user-star-line"></i> Empleado</h2>
+            
+            <h3 class="section-title"><i class="ri-flag-2-line"></i> Objetivos del Empleado</h3>
+            <form id="formAddObj" class="flex-form">
+                <input type="text" id="d_objTexto" required placeholder="Ej: Vender 3 fundas...">
+                <button type="submit" class="btn-icon-submit" style="background:var(--accent);"><i class="ri-add-line"></i></button>
+            </form>
+            <div id="modalObjList" class="mini-list" style="margin-bottom:25px;"></div>
+
+            <h3 class="section-title"><i class="ri-message-3-line"></i> Avisos / Mensajes</h3>
+            <form id="formAddMsg" class="flex-form">
+                <input type="text" id="d_msgTexto" required placeholder="Ej: No olvides limpiar la caja...">
+                <button type="submit" class="btn-icon-submit" style="background:var(--success);"><i class="ri-send-plane-fill"></i></button>
+            </form>
+            <div id="modalMsgList" class="mini-list"></div>
+        </div>
+    </div>
+
     <script>document.write('<script src="script.js?v=' + new Date().getTime() + '"><\/script>');</script>
 </body>
 </html>
