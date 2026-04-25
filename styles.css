@@ -26,6 +26,14 @@ body { background-color: var(--bg-app); color: var(--text); }
 .pulse { animation: pulse 2s infinite; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 70% { box-shadow: 0 0 0 10px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
 
+/* TABS DUEÑO */
+.dueno-nav { display: flex; background: var(--bg-header); padding: 0 20px; border-bottom: 1px solid var(--border); overflow-x: auto; gap: 10px; }
+.tab-btn { background: transparent; color: var(--text-dim); border: none; padding: 15px 10px; cursor: pointer; font-weight: 600; border-bottom: 3px solid transparent; white-space: nowrap; font-size: 0.95rem;}
+.tab-btn i { margin-right: 5px; }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
 /* LAYOUT */
 .content-area { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
 .grid-layout { display: grid; grid-template-columns: 1fr; gap: 20px; }
@@ -40,6 +48,7 @@ h2 { font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center;
 .input-group label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 8px; }
 .input-group input, .input-group select { width: 100%; background: var(--bg-app); border: 1px solid var(--border); padding: 12px; border-radius: 10px; color: white; font-size: 16px; outline: none; }
 .input-group input:focus { border-color: var(--accent); }
+.input-group select:disabled { opacity: 0.5; }
 
 .btn-primary { width: 100%; padding: 14px; border-radius: 10px; font-weight: bold; background: var(--accent); color: white; border: none; cursor: pointer; display: flex; justify-content: center; gap: 8px; }
 .btn-gestion { background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold;}
