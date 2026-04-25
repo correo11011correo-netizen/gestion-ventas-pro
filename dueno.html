@@ -6,7 +6,6 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <title>Panel Dueño</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <script>document.write('<link rel="stylesheet" href="styles.css?v=' + new Date().getTime() + '">');</script>
 </head>
 <body data-role="dueno">
     <div class="app-wrapper">
@@ -21,7 +20,6 @@
         </header>
 
         <div class="content-area grid-layout">
-            <!-- COLUMNA IZQUIERDA: PERSONAL -->
             <div class="column-left">
                 <div class="card">
                     <h2><i class="ri-user-add-line"></i> Alta Empleado</h2>
@@ -40,7 +38,6 @@
                 </div>
             </div>
 
-            <!-- COLUMNA DERECHA: MONITOREO EN VIVO -->
             <div class="column-right">
                 <div class="card bg-accent">
                     <h2><i class="ri-time-line"></i> Turno Actual (En Vivo)</h2>
@@ -76,13 +73,22 @@
 
             <h3 class="section-title"><i class="ri-message-3-line"></i> Avisos / Mensajes</h3>
             <form id="formAddMsg" class="flex-form">
-                <input type="text" id="d_msgTexto" required placeholder="Ej: No olvides limpiar la caja...">
+                <input type="text" id="d_msgTexto" required placeholder="Ej: Limpiar caja...">
                 <button type="submit" class="btn-icon-submit" style="background:var(--success);"><i class="ri-send-plane-fill"></i></button>
             </form>
             <div id="modalMsgList" class="mini-list"></div>
         </div>
     </div>
 
-    <script>document.write('<script src="script.js?v=' + new Date().getTime() + '"><\/script>');</script>
+    <!-- ANTI CACHE MODERNO -->
+    <script>
+        (function(){
+            var v = Date.now();
+            var link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'styles.css?v=' + v;
+            document.head.appendChild(link);
+            var script = document.createElement('script'); script.src = 'script.js?v=' + v;
+            document.body.appendChild(script);
+        })();
+    </script>
 </body>
 </html>
